@@ -39,9 +39,9 @@
 
   /* Magičar (loader) */
   .wizard{width:160px; margin:auto}
-  .spark{animation:twinkle 1.2s infinite ease-in-out}
+  .spark{animation:twinkle 5.2s infinite ease-in-out}
   @keyframes twinkle{0%,100%{opacity:.2; transform:translateY(0)}50%{opacity:1; transform:translateY(-3px)}}
-  .wand{transform-origin:120px 60px; animation:wave 1.6s ease-in-out infinite}
+  .wand{transform-origin:120px 60px; animation:wave 4.6s ease-in-out infinite}
   @keyframes wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 
   /* FINAL animacija */
@@ -90,10 +90,10 @@
 /* =================== PODEŠAVANJA =================== */
 const pitanja = [
   { id:"lagani1",  tip:"slider",  tekst:"Koliko smo lagani?", min:1, max:5, step:1 },
-  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["često","počastvovan"] },
+  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["čes...","počastvovan"] },
   { id:"subsidy", tip:"decimal", tekst:"Idealan odnos punih i nabavnih cena u subsidy je? (dvocifren broj sa decimalom)", place:"npr. 12.5", regex:/^\d{2}[\.,]\d$/ },
   { id:"trajanje",tip:"text",    tekst:"Koliko će trajati proslava Vojinog rođendana?", place:"Upiši vreme ili opis (npr. 6h, do zore...)" },
-  { id:"loader1", tip:"loader",  poruke:["interesting...","good answers...","it's something unique"] },
+  { id:"loader1", tip:"loader",  poruke:["ma zezas me...","vidi ti nju...","alal vera"] },
   { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:/^\d{2}[\.,]\d{2}$/ },
   { id:"projekat",tip:"partial", tekst:"Na kom projektu Voja radi i u ciljevima mu je, trenutno? (reč sa tri slova, prva dva unosiš, treće je unapred 'P')", sufiks:"P", maxlen:2, place:"npr. AI" },
   { id:"lagani2", tip:"slider",  tekst:"Da li smo i dalje lagani?", min:1, max:5, step:1 },

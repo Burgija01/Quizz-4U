@@ -6,12 +6,14 @@
 <title>Vojin kviz</title>
 <style>
   :root{
-    --bg:#0f172a; --panel:#0b1220; --muted:#94a3b8; --acc:#22d3ee; --good:#22c55e; --bad:#ef4444; --gold:#fbbf24;
+    --bg:#0f172a; --panel:#0b1220; --muted:#94a3b8; --acc:#22d3ee; --good:#22c55e; --gold:#fbbf24;
   }
   *{box-sizing:border-box}
-  body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial; color:#fff; background:radial-gradient(1200px 800px at 70% -10%, #1e293b 0%, var(--bg) 55%)}
+  body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial; color:#fff;
+       background:radial-gradient(1200px 800px at 70% -10%, #1e293b 0%, var(--bg) 55%)}
   .wrap{min-height:100dvh; display:grid; place-items:center; padding:24px}
-  .card{width:min(860px, 96vw); background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.06); border-radius:22px; box-shadow:0 10px 30px rgba(0,0,0,.35); backdrop-filter: blur(6px);}
+  .card{width:min(860px,96vw); background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+        border:1px solid rgba(255,255,255,.06); border-radius:22px; box-shadow:0 10px 30px rgba(0,0,0,.35); backdrop-filter:blur(6px)}
   header{padding:20px 22px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:space-between; gap:12px}
   header h1{margin:0; font-size:clamp(18px,3vw,24px)}
   .meta{display:flex; gap:10px; color:var(--muted); font-size:13px}
@@ -21,35 +23,51 @@
   .sub{color:var(--muted); margin:0 0 16px; font-size:14px}
   .grid{display:grid; gap:12px}
   .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
-  button, .btn{all:unset; background:var(--panel); border:1px solid rgba(255,255,255,.1); padding:12px 14px; border-radius:12px; cursor:pointer; transition:.15s ease background, .08s ease transform; text-align:center}
+  button,.btn{all:unset; background:var(--panel); border:1px solid rgba(255,255,255,.1); padding:12px 14px; border-radius:12px; cursor:pointer;
+              transition:.15s ease background,.08s ease transform; text-align:center}
   button:hover,.btn:hover{background:#0d172a}
   button:active,.btn:active{transform:translateY(1px)}
   .primary{border-color:rgba(34,211,238,.35)}
   .muted{color:var(--muted)}
-  input[type="text"], input[type="number"], .fake-input{background:#0a1020; border:1px solid rgba(255,255,255,.12); color:#fff; padding:12px 14px; border-radius:12px; min-width:220px}
-  input[type="number"]{appearance:textfield}
-  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button{appearance:none; margin:0}
-  input[disabled], button[disabled]{opacity:.45; cursor:not-allowed}
+  input[type="text"],.fake-input{background:#0a1020; border:1px solid rgba(255,255,255,.12); color:#fff; padding:12px 14px; border-radius:12px; min-width:220px}
   .range{width:260px}
   .footer{display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:12px}
   .progress{height:10px; background:#0a1020; border:1px solid rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
-  .progress > div{height:100%; width:0; background:linear-gradient(90deg, #22d3ee, #38bdf8); transition:width .35s ease}
+  .progress>div{height:100%; width:0; background:linear-gradient(90deg,#22d3ee,#38bdf8); transition:width .35s ease}
   .center{display:grid; place-items:center; text-align:center}
   .space{height:16px}
 
-  /* Magičar (SVG) */
+  /* Magičar (loader) */
   .wizard{width:160px; margin:auto}
-  .spark{animation: twinkle 1.2s infinite ease-in-out}
+  .spark{animation:twinkle 1.2s infinite ease-in-out}
   @keyframes twinkle{0%,100%{opacity:.2; transform:translateY(0)}50%{opacity:1; transform:translateY(-3px)}}
-  .wand{transform-origin: 120px 60px; animation: wave 1.6s ease-in-out infinite}
+  .wand{transform-origin:120px 60px; animation:wave 1.6s ease-in-out infinite}
   @keyframes wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 
-  /* Grebalica */
-  .scratch-wrap{position:relative; width:min(520px, 92vw); height:220px; margin:12px auto; border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,.12)}
-  .prize{position:absolute; inset:0; display:grid; place-items:center; background:radial-gradient(800px 400px at 50% -30%, rgba(251,191,36,.25), transparent 60%), #0b1220; opacity:0; transition:opacity .6s ease}
-  .prize.revealed{opacity:1}
-  .prize h3{margin:0; font-size:clamp(18px,3vw,24px)}
-  canvas#scratch{position:absolute; inset:0; background:repeating-linear-gradient(45deg, #6b7280, #6b7280 10px, #9ca3af 10px, #9ca3af 20px)}
+  /* FINAL animacija (sjajna ploča + puls trofej + blur svetla) */
+  .final-wrap{position:relative; width:min(720px,94vw); margin:8px auto 0}
+  .shine{
+    position:relative; padding:28px 20px; border-radius:18px; overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .shine::before{
+    content:""; position:absolute; inset:-2px; border-radius:20px; pointer-events:none;
+    background:conic-gradient(from 0deg, rgba(34,211,238,.0), rgba(34,211,238,.45), rgba(56,189,248,.0) 30% 70%, rgba(34,211,238,.45), rgba(34,211,238,.0));
+    filter:blur(14px); animation:spin 6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .trophy{font-size:clamp(22px,4vw,28px); display:inline-block; animation:bounce 1.6s ease-in-out infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .prize-text{font-size:clamp(20px,3vw,26px); margin:4px 0 0; letter-spacing:.2px}
+  .glow-dots{
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(180px 60px at 20% 0%, rgba(251,191,36,.18), transparent 60%),
+      radial-gradient(200px 70px at 80% 0%, rgba(56,189,248,.18), transparent 60%);
+    animation:float 5s ease-in-out infinite alternate;
+  }
+  @keyframes float{from{transform:translateY(0)}to{transform:translateY(8px)}}
 </style>
 </head>
 <body>
@@ -69,20 +87,18 @@
 <!-- konfete -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
-/* ===================
-   KONFIGURACIJA KVIZA
-   =================== */
+/* =================== PODEŠAVANJA =================== */
 const pitanja = [
   { id:"lagani1",  tip:"slider",  tekst:"Koliko smo lagani?", min:1, max:5, step:1 },
-  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["često","počastvovan"], obavezno:true },
+  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["često","počastvovan"] },
   { id:"subsidy", tip:"decimal", tekst:"Idealan odnos punih i nabavnih cena u subsidy je? (dvocifren broj sa decimalom)", place:"npr. 12.5", regex:/^\d{2}[\.,]\d$/ },
-  { id:"trajanje",tip:"text",    tekst:"Koliko će trajati proslava Vojinog rođendana?", place:"Upiši vreme ili opis (npr. 6h, do zore...)"},
-  { id:"loader1", tip:"loader",  poruke:["interesting...", "good answers...", "it's something unique"] },
+  { id:"trajanje",tip:"text",    tekst:"Koliko će trajati proslava Vojinog rođendana?", place:"Upiši vreme ili opis (npr. 6h, do zore...)" },
+  { id:"loader1", tip:"loader",  poruke:["interesting...","good answers...","it's something unique"] },
   { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:/^\d{2}[\.,]\d{2}$/ },
   { id:"projekat",tip:"partial", tekst:"Na kom projektu Voja radi i u ciljevima mu je, trenutno? (reč sa tri slova, prva dva unosiš, treće je unapred 'P')", sufiks:"P", maxlen:2, place:"npr. AI" },
   { id:"lagani2", tip:"slider",  tekst:"Da li smo i dalje lagani?", min:1, max:5, step:1 },
   { id:"jos",     tip:"yn-trick", tekst:"Da li misliš da će biti još pitanja? (Da/Ne)", note:"'Da' je zamućen i neaktivan 😉" },
-  { id:"loader2", tip:"loader",  poruke:["iskreni odgovori...", "jake egzibicije...", "opa opa..."] },
+  { id:"loader2", tip:"loader",  poruke:["iskreni odgovori...","jake egzibicije...","opa opa..."] },
   { id:"kraj",    tip:"final" }
 ];
 
@@ -96,12 +112,11 @@ function setStatus(t){ el('#status').textContent = t || 'Spremno'; }
 function next(){ i++; setStepLabel(); render(); }
 function prev(){ i = Math.max(0, i-1); setStepLabel(); render(); }
 
+/* =================== RENDER =================== */
 function render(){
-  const q = pitanja[i];
-  if(!q) return;
+  const q = pitanja[i]; if(!q) return;
   document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
 
-  /* slider */
   if(q.tip==='slider'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -120,21 +135,16 @@ function render(){
     return;
   }
 
-  /* choice */
   if(q.tip==='choice'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="grid">
         ${q.opcije.map(o=>`<button class="btn" onclick="odgovori['${q.id}']='${o}'; next();">${o}</button>`).join('')}
       </div>
-      <div class="footer">
-        <span class="muted">Izaberi jedan odgovor</span>
-        <button class="btn" onclick="prev()">Nazad</button>
-      </div>`;
+      <div class="footer"><span class="muted">Izaberi jedan odgovor</span><button class="btn" onclick="prev()">Nazad</button></div>`;
     return;
   }
 
-  /* decimal (1 decimala) */
   if(q.tip==='decimal'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -142,16 +152,14 @@ function render(){
         <input id="inp" type="text" inputmode="decimal" class="fake-input" placeholder="${q.place}">
         <button class="btn" onclick="(function(){
           const raw = el('#inp').value.trim();
-          const v = raw.replace(',', '.');
           if(!${q.regex}.test(raw)){ el('#inp').classList.add('danger'); setStatus('Format npr. 12.5'); return; }
-          odgovori['${q.id}']=v; setStatus('Spremno'); next();
+          odgovori['${q.id}']=raw.replace(',', '.'); setStatus('Spremno'); next();
         })()">Potvrdi ▶</button>
       </div>
       <div class="footer"><span class="muted">Dvocifren broj sa jednom decimalom</span><button class="btn" onclick="prev()">Nazad</button></div>`;
     return;
   }
 
-  /* decimal2 (2 decimale) */
   if(q.tip==='decimal2'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -167,7 +175,6 @@ function render(){
     return;
   }
 
-  /* free text */
   if(q.tip==='text'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -182,7 +189,6 @@ function render(){
     return;
   }
 
-  /* partial + sufiks P */
   if(q.tip==='partial'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -198,7 +204,6 @@ function render(){
     return;
   }
 
-  /* trik Da/Ne */
   if(q.tip==='yn-trick'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
@@ -210,7 +215,6 @@ function render(){
     return;
   }
 
-  /* loader + magičar */
   if(q.tip==='loader'){
     app.innerHTML = `
       <div class="center">
@@ -224,46 +228,41 @@ function render(){
       </div>`;
     setStatus('Obrada odgovora...');
     let pct=0, k=0;
-    const bar = el('#bar'), msg = el('#msg');
-    const timer = setInterval(()=>{
-      pct = Math.min(100, pct + Math.random()*18+6);
-      bar.style.width = pct + '%';
-      if(Math.random()>0.6){ k=(k+1)%q.poruke.length; msg.textContent = q.poruke[k]; }
-      if(pct>=100){ clearInterval(timer); setTimeout(()=>{ setStatus('Spremno'); next(); }, 600); }
+    const bar=el('#bar'), msg=el('#msg');
+    const t=setInterval(()=>{
+      pct=Math.min(100, pct + Math.random()*18+6);
+      bar.style.width=pct+'%';
+      if(Math.random()>0.6){ k=(k+1)%q.poruke.length; msg.textContent=q.poruke[k]; }
+      if(pct>=100){ clearInterval(t); setTimeout(()=>{ setStatus('Spremno'); next(); }, 600); }
     },420);
-    el('#skip').onclick=()=>{ clearInterval(timer); bar.style.width='100%'; setTimeout(()=>{ setStatus('Spremno'); next(); }, 300); };
+    el('#skip').onclick=()=>{ clearInterval(t); bar.style.width='100%'; setTimeout(()=>{ setStatus('Spremno'); next(); }, 300); };
     return;
   }
 
-  /* FINAL + grebalica + poruka ispod posle 60% */
+  /* ===== FINAL – bez grebalice, sa animacijama ===== */
   if(q.tip==='final'){
     app.innerHTML = `
-      <div class="center">
-        <h2>🏆 Bravo! Stigla si do kraja!</h2>
-        <p class="sub">Grebalica ⤵</p>
-
-        <div class="scratch-wrap">
-          <!-- tekst nagrade unutar grebalice (po želji) -->
-          <div class="prize" id="prizeText"><h3>Ručak u Monument restoranu! Bravos!</h3></div>
-          <canvas id="scratch" width="800" height="400"></canvas>
+      <div class="center final-wrap">
+        <div class="glow-dots"></div>
+        <div class="shine">
+          <h2 style="margin:0 0 8px">
+            <span class="trophy">🏆</span>
+            <span style="margin-left:6px">Bravo! Stigla si do kraja!</span>
+          </h2>
+          <p class="prize-text">Rucak u Monument restoranu! Bravos!</p>
         </div>
-
-        <!-- OVA PORUKA JE ISPOD GREBALICE i pojavljuje se nakon 60% -->
-        <div id="reveal-msg" class="sub" style="display:none">
-          Ručak u Monument restoranu! Bravos!
-        </div>
-
-        <div class="row" style="justify-content:center">
+        <div class="row" style="justify-content:center; margin-top:16px">
           <button class="btn" onclick="location.reload()">Igraj ponovo</button>
         </div>
       </div>`;
     fireConfetti();
-    setupScratch();
+    // mali “pojačani” burst odmah
+    confetti({particleCount: 120, spread: 70, startVelocity: 45, origin:{y:0.25}});
     return;
   }
 }
 
-/* pomoćne */
+/* helperi */
 function wizardSVG(){
   return `
   <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
@@ -281,61 +280,14 @@ function wizardSVG(){
 function fireConfetti(){
   const end = Date.now() + 1800;
   (function frame(){
-    confetti({particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }});
-    confetti({particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }});
-    if(Date.now() < end){ requestAnimationFrame(frame); }
+    confetti({particleCount: 2, angle: 60, spread: 55, origin:{x:0}});
+    confetti({particleCount: 2, angle:120, spread: 55, origin:{x:1}});
+    if(Date.now() < end) requestAnimationFrame(frame);
   })();
 }
 
-/* GREBALICA sa otkrivanjem poruke ispod (>=60%) */
-function setupScratch(){
-  const c = el('#scratch'); const ctx = c.getContext('2d');
-  const dpr = window.devicePixelRatio || 1; 
-  c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; ctx.scale(dpr,dpr);
-
-  // sivo prekrivanje
-  ctx.fillStyle = 'rgba(107,114,128,0.95)';
-  ctx.fillRect(0,0,c.clientWidth,c.clientHeight);
-  ctx.globalCompositeOperation = 'destination-out';
-
-  let scratching=false, revealed=false;
-  const rad=18;
-  const scratch=(x,y)=>{ ctx.beginPath(); ctx.arc(x,y,rad,0,Math.PI*2); ctx.fill(); };
-  const pctCleared = ()=>{
-    const img=ctx.getImageData(0,0,c.clientWidth,c.clientHeight).data; 
-    let cleared=0; 
-    for(let i=3;i<img.length;i+=4){ if(img[i]===0) cleared++; }
-    return cleared/(img.length/4);
-  };
-
-  const prizeOverlay = el('#prizeText');
-  const revealMsg    = el('#reveal-msg');
-
-  const onMove=e=>{
-    const r=c.getBoundingClientRect();
-    const x=(e.touches? e.touches[0].clientX: e.clientX)-r.left;
-    const y=(e.touches? e.touches[0].clientY: e.clientY)-r.top;
-    if(scratching){
-      scratch(x,y);
-      if(!revealed && pctCleared()>0.6){
-        revealed = true;
-        ctx.clearRect(0,0,c.clientWidth,c.clientHeight);     // skini prekrivku
-        if(prizeOverlay) prizeOverlay.classList.add('revealed'); // (opciono) pokaži i unutra
-        if(revealMsg) revealMsg.style.display = 'block';      // prikaži ispod
-      }
-    }
-  };
-
-  c.addEventListener('mousedown', ()=>scratching=true);
-  c.addEventListener('mouseup', ()=>scratching=false);
-  c.addEventListener('mouseleave', ()=>scratching=false);
-  c.addEventListener('mousemove', onMove);
-  c.addEventListener('touchstart', e=>{ scratching=true; onMove(e); }, {passive:true});
-  c.addEventListener('touchend', ()=>scratching=false);
-  c.addEventListener('touchmove', onMove, {passive:true});
-}
-
 /* START */
+setStepLabel();
 render();
 </script>
 </body>

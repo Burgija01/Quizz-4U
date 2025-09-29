@@ -44,7 +44,7 @@
   .wand{transform-origin:120px 60px; animation:wave 1.6s ease-in-out infinite}
   @keyframes wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 
-  /* FINAL animacija (sjajna ploča + puls trofej + blur svetla) */
+  /* FINAL animacija */
   .final-wrap{position:relative; width:min(720px,94vw); margin:8px auto 0}
   .shine{
     position:relative; padding:28px 20px; border-radius:18px; overflow:hidden;
@@ -97,7 +97,7 @@ const pitanja = [
   { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:/^\d{2}[\.,]\d{2}$/ },
   { id:"projekat",tip:"partial", tekst:"Na kom projektu Voja radi i u ciljevima mu je, trenutno? (reč sa tri slova, prva dva unosiš, treće je unapred 'P')", sufiks:"P", maxlen:2, place:"npr. AI" },
   { id:"lagani2", tip:"slider",  tekst:"Da li smo i dalje lagani?", min:1, max:5, step:1 },
-  { id:"jos",     tip:"yn-trick", tekst:"Da li misliš da će biti još pitanja? (Da/Ne)", note:"'Da' je zamućen i neaktivan 😉" },
+  { id:"jos",     tip:"yn-trick", tekst:"Da li misliš da će biti još pitanja? (Da/Ne)", note:"Izaberi mudro :)" },
   { id:"loader2", tip:"loader",  poruke:["iskreni odgovori...","jake egzibicije...","opa opa..."] },
   { id:"kraj",    tip:"final" }
 ];
@@ -208,7 +208,7 @@ function render(){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row">
-        <button class="btn" disabled title="Namerno onemogućeno 😉" style="filter:grayscale(.6); opacity:.6">Da</button>
+        <button class="btn" disabled title="😉">Da</button>
         <button class="btn primary" onclick="odgovori['${q.id}']='Ne'; next();">Ne</button>
       </div>
       <div class="footer"><span class="muted">${q.note||''}</span><button class="btn" onclick="prev()">Nazad</button></div>`;
@@ -223,8 +223,6 @@ function render(){
         <div class="progress" style="width:min(520px,90vw)"><div id="bar"></div></div>
         <div class="space"></div>
         <div id="msg" class="sub">${q.poruke[0]}</div>
-        <div class="space"></div>
-        <button class="btn" id="skip">Preskoči animaciju ▶</button>
       </div>`;
     setStatus('Obrada odgovora...');
     let pct=0, k=0;
@@ -235,11 +233,9 @@ function render(){
       if(Math.random()>0.6){ k=(k+1)%q.poruke.length; msg.textContent=q.poruke[k]; }
       if(pct>=100){ clearInterval(t); setTimeout(()=>{ setStatus('Spremno'); next(); }, 600); }
     },420);
-    el('#skip').onclick=()=>{ clearInterval(t); bar.style.width='100%'; setTimeout(()=>{ setStatus('Spremno'); next(); }, 300); };
     return;
   }
 
-  /* ===== FINAL – bez grebalice, sa animacijama ===== */
   if(q.tip==='final'){
     app.innerHTML = `
       <div class="center final-wrap">
@@ -256,7 +252,6 @@ function render(){
         </div>
       </div>`;
     fireConfetti();
-    // mali “pojačani” burst odmah
     confetti({particleCount: 120, spread: 70, startVelocity: 45, origin:{y:0.25}});
     return;
   }

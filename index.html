@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Vojin kviz</title>
 <style>
-  :root{ --bg:#0f172a; --panel:#0b1220; --muted:#94a3b8; --acc:#22d3ee; --good:#22c55e; --bad:#ef4444; --gold:#fbbf24; }
+  :root{
+    --bg:#0f172a; --panel:#0b1220; --muted:#94a3b8; --acc:#22d3ee; --good:#22c55e; --bad:#ef4444; --gold:#fbbf24;
+  }
   *{box-sizing:border-box}
   body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial; color:#fff; background:radial-gradient(1200px 800px at 70% -10%, #1e293b 0%, var(--bg) 55%)}
   .wrap{min-height:100dvh; display:grid; place-items:center; padding:24px}
@@ -30,20 +32,30 @@
   input[disabled], button[disabled]{opacity:.45; cursor:not-allowed}
   .range{width:260px}
   .footer{display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:12px}
+  .score{background:#0a1020; border:1px solid rgba(255,255,255,.08); padding:8px 12px; border-radius:10px; font-size:13px}
   .progress{height:10px; background:#0a1020; border:1px solid rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
   .progress > div{height:100%; width:0; background:linear-gradient(90deg, #22d3ee, #38bdf8); transition:width .35s ease}
   .center{display:grid; place-items:center; text-align:center}
   .space{height:16px}
+
+  /* Magičar (SVG) */
   .wizard{width:160px; margin:auto}
   .spark{animation: twinkle 1.2s infinite ease-in-out}
   @keyframes twinkle{0%,100%{opacity:.2; transform:translateY(0)}50%{opacity:1; transform:translateY(-3px)}}
   .wand{transform-origin: 120px 60px; animation: wave 1.6s ease-in-out infinite}
   @keyframes wave{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+  /* Grebalica */
   .scratch-wrap{position:relative; width:min(520px, 92vw); height:220px; margin:12px auto; border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,.12)}
   .prize{position:absolute; inset:0; display:grid; place-items:center; background:radial-gradient(800px 400px at 50% -30%, rgba(251,191,36,.25), transparent 60%), #0b1220}
   .prize h3{margin:0; font-size:clamp(18px,3vw,24px)}
   canvas#scratch{position:absolute; inset:0; background:repeating-linear-gradient(45deg, #6b7280, #6b7280 10px, #9ca3af 10px, #9ca3af 20px)}
+
+  .success{outline:2px solid var(--good); background:rgba(34,197,94,.08)}
   .danger{outline:2px solid var(--bad); background:rgba(239,68,68,.08)}
+  /* lepo pojavljivanje poruke ispod */
+  .reveal {display:none; opacity:0; transition:opacity .4s ease}
+  .reveal.show {display:block; opacity:1}
 </style>
 </head>
 <body>
@@ -60,15 +72,19 @@
   </div>
 </div>
 
+<!-- mala konfeti biblioteka -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
+// ===================
+// KONFIGURACIJA KVIZA
+// ===================
 const pitanja = [
   { id:"lagani1",  tip:"slider",  tekst:"Koliko smo lagani?", min:1, max:5, step:1 },
-  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["čes...","počastovan"], obavezno:true },
-  { id:"subsidy", tip:"decimal", tekst:"Idealan odnos punih i nabavnih cena u subsidy je? (dvocifren broj sa decimalom)", place:"npr. 12.5", regex:"^\\d{2}[\\.,]\\d$" },
+  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["često","počašć­tovan"], obavezno:true },
+  { id:"subsidy", tip:"decimal", tekst:"Idealan odnos punih i nabavnih cena u subsidy je? (dvocifren broj sa decimalom)", place:"npr. 12.5", regex:/^\d{2}[\.,]\d$/ },
   { id:"trajanje",tip:"text",    tekst:"Koliko će trajati proslava Vojinog rođendana?", place:"Upiši vreme ili opis (npr. 6h, do zore...)"},
   { id:"loader1", tip:"loader",  poruke:["interesting...","good answers...","it's something unique"] },
-  { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:"^\\d{2}[\\.,]\\d{2}$" },
+  { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:/^\d{2}[\.,]\d{2}$/ },
   { id:"projekat",tip:"partial", tekst:"Na kom projektu Voja radi i u ciljevima mu je, trenutno? (reč sa tri slova, prva dva unosiš, treće je unapred 'P')", sufiks:"P", maxlen:2, place:"npr. AI"},
   { id:"lagani2", tip:"slider",  tekst:"Da li smo i dalje lagani?", min:1, max:5, step:1 },
   { id:"jos",     tip:"yn-trick", tekst:"Da li misliš da će biti još pitanja? (Da/Ne)", note:"'Da' je zamućen i neaktivan 😉"},
@@ -78,19 +94,19 @@ const pitanja = [
 
 let i = 0;
 const odgovori = {};
-const el = (s)=>document.querySelector(s);
+const el = sel => document.querySelector(sel);
 const app = el('#app');
 
-function setStepLabel(){ el('#step').textContent = `Korak ${Math.min(i+1, pitanja.length)}`; }
+function setStepLabel() { el('#step').textContent = `Korak ${Math.min(i+1, pitanja.length)}`; }
 function setStatus(t){ el('#status').textContent = t||'Spremno'; }
 function next(){ i++; setStepLabel(); render(); }
-function prev(){ i=Math.max(0,i-1); setStepLabel(); render(); }
+function prev(){ i = Math.max(0, i-1); setStepLabel(); render(); }
 
 function render(){
   const q = pitanja[i]; if(!q) return;
   document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
 
-  if(q.tip==='slider'){
+  if(q.tip === 'slider'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row">
@@ -100,97 +116,93 @@ function render(){
       <div class="footer">
         <span class="muted">Prevuci skalu 1–5</span>
         <div class="row">
-          <button class="btn" id="back">Nazad</button>
-          <button class="btn primary" id="next">Dalje ▶</button>
+          <button class="btn" onclick="prev()">Nazad</button>
+          <button class="btn primary" onclick="(function(){odgovori['${q.id}']=+el('#rng').value; next();})()">Dalje ▶</button>
         </div>
-      </div>`;
+      </div>
+    `;
     el('#rng').addEventListener('input', e=> el('#rngv').textContent = e.target.value);
-    el('#back').addEventListener('click', prev);
-    el('#next').addEventListener('click', ()=>{ odgovori[q.id]=+el('#rng').value; next(); });
     return;
   }
 
-  if(q.tip==='choice'){
+  if(q.tip === 'choice'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
-      <div class="grid" id="choices"></div>
-      <div class="footer"><span class="muted">Izaberi jedan odgovor</span><button class="btn" id="back">Nazad</button></div>`;
-    const box = el('#choices');
-    q.opcije.forEach(o=>{
-      const b=document.createElement('button'); b.className='btn'; b.textContent=o;
-      b.addEventListener('click', ()=>{ odgovori[q.id]=o; next(); });
-      box.appendChild(b);
-    });
-    el('#back').addEventListener('click', prev);
+      <div class="grid">
+        ${q.opcije.map((o)=>`<button class="btn" onclick="odgovori['${q.id}']='${o}'; next();">${o}</button>`).join('')}
+      </div>
+      <div class="footer"><span class="muted">Izaberi jedan odgovor</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `;
     return;
   }
 
-  if(q.tip==='decimal' || q.tip==='decimal2'){
+  if(q.tip === 'decimal'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row">
         <input id="inp" type="text" inputmode="decimal" class="fake-input" placeholder="${q.place}">
-        <button class="btn" id="ok">Potvrdi ▶</button>
+        <button class="btn" onclick="(function(){
+          const v = el('#inp').value.trim().replace(',', '.');
+          if(!${q.regex}.test(el('#inp').value.trim())){ el('#inp').classList.add('danger'); setStatus('Format npr. 12.5'); return; }
+          odgovori['${q.id}']=v; setStatus('Spremno'); next();
+        })()">Potvrdi ▶</button>
       </div>
-      <div class="footer"><span class="muted">${q.tip==='decimal'?'Dvocifren broj sa jednom decimalom':'Dvocifren broj sa dve decimale'}</span><button class="btn" id="back">Nazad</button></div>`;
-    el('#back').addEventListener('click', prev);
-    el('#ok').addEventListener('click', ()=>{
-      const raw = el('#inp').value.trim();
-      const re = new RegExp(q.regex);
-      if(!re.test(raw)){ el('#inp').classList.add('danger'); setStatus(q.tip==='decimal'?'Format npr. 12.5':'Format npr. 23.45'); return; }
-      odgovori[q.id]= raw.replace(',', '.');
-      setStatus('Spremno'); next();
-    });
-    return;
+      <div class="footer"><span class="muted">Dvocifren broj sa jednom decimalom</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `; return;
   }
 
-  if(q.tip==='text'){
+  if(q.tip === 'decimal2'){
+    app.innerHTML = `
+      <p class="q">${q.tekst}</p>
+      <div class="row">
+        <input id="inp" type="text" inputmode="decimal" class="fake-input" placeholder="${q.place}">
+        <button class="btn" onclick="(function(){
+          const raw = el('#inp').value.trim();
+          if(!${q.regex}.test(raw)){ el('#inp').classList.add('danger'); setStatus('Format npr. 23.45'); return; }
+          odgovori['${q.id}']=raw.replace(',', '.'); setStatus('Spremno'); next();
+        })()">Potvrdi ▶</button>
+      </div>
+      <div class="footer"><span class="muted">Dvocifren broj sa dve decimale</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `; return;
+  }
+
+  if(q.tip === 'text'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row">
         <input id="inp" type="text" class="fake-input" placeholder="${q.place||''}">
-        <button class="btn" id="ok">Potvrdi ▶</button>
+        <button class="btn" onclick="(function(){
+          const v = el('#inp').value.trim(); if(!v){el('#inp').classList.add('danger'); return;} odgovori['${q.id}']=v; next();
+        })()">Potvrdi ▶</button>
       </div>
-      <div class="footer"><span class="muted">Unesi tekst ili broj</span><button class="btn" id="back">Nazad</button></div>`;
-    el('#back').addEventListener('click', prev);
-    el('#ok').addEventListener('click', ()=>{
-      const v = el('#inp').value.trim(); if(!v){ el('#inp').classList.add('danger'); return; }
-      odgovori[q.id]=v; next();
-    });
-    return;
+      <div class="footer"><span class="muted">Unesi tekst ili broj</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `; return;
   }
 
-  if(q.tip==='partial'){
+  if(q.tip === 'partial'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row" style="align-items:stretch">
         <input id="pre" maxlength="${q.maxlen||2}" class="fake-input" style="width:130px" placeholder="${q.place||''}">
         <div class="fake-input" style="opacity:.7">${q.sufiks}</div>
-        <button class="btn" id="ok">Potvrdi ▶</button>
+        <button class="btn" onclick="(function(){ const v = el('#pre').value.trim(); if(!v){el('#pre').classList.add('danger'); return;} odgovori['${q.id}']=v + '${q.sufiks}'; next(); })()">Potvrdi ▶</button>
       </div>
-      <div class="footer"><span class="muted">Unesi prva dva slova, treće je već '${q.sufiks}'</span><button class="btn" id="back">Nazad</button></div>`;
-    el('#back').addEventListener('click', prev);
-    el('#ok').addEventListener('click', ()=>{
-      const v = el('#pre').value.trim(); if(!v){ el('#pre').classList.add('danger'); return; }
-      odgovori[q.id]= v + q.sufiks; next();
-    });
-    return;
+      <div class="footer"><span class="muted">Unesi prva dva slova, treće je već '${q.sufiks}'</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `; return;
   }
 
-  if(q.tip==='yn-trick'){
+  if(q.tip === 'yn-trick'){
     app.innerHTML = `
       <p class="q">${q.tekst}</p>
       <div class="row">
         <button class="btn" disabled title="Namerno onemogućeno 😉" style="filter:grayscale(.6); opacity:.6">Da</button>
-        <button class="btn primary" id="ne">Ne</button>
+        <button class="btn primary" onclick="odgovori['${q.id}']='Ne'; next();">Ne</button>
       </div>
-      <div class="footer"><span class="muted">${q.note||''}</span><button class="btn" id="back">Nazad</button></div>`;
-    el('#back').addEventListener('click', prev);
-    el('#ne').addEventListener('click', ()=>{ odgovori[q.id]='Ne'; next(); });
-    return;
+      <div class="footer"><span class="muted">${q.note||''}</span><button class="btn" onclick="prev()">Nazad</button></div>
+    `; return;
   }
 
-  if(q.tip==='loader'){
+  if(q.tip === 'loader'){
     app.innerHTML = `
       <div class="center">
         <div class="wizard" aria-hidden="true">${wizardSVG()}</div>
@@ -202,55 +214,67 @@ function render(){
         <button class="btn" id="skip">Preskoči animaciju ▶</button>
       </div>`;
     setStatus('Obrada odgovora...');
-    let pct=0, k=0;
-    const bar = el('#bar'); const msg = el('#msg');
+    let pct = 0, k=0;
+    const bar = el('#bar');
+    const msg = el('#msg');
     const timer = setInterval(()=>{
       pct = Math.min(100, pct + Math.random()*18+6);
       bar.style.width = pct + '%';
+      if(pct>100){ pct=100; }
       if(Math.random()>0.6){ k=(k+1)%q.poruke.length; msg.textContent=q.poruke[k]; }
       if(pct>=100){ clearInterval(timer); setTimeout(()=>{ setStatus('Spremno'); next(); }, 600); }
-    },420);
-    el('#skip').addEventListener('click', ()=>{ clearInterval(timer); bar.style.width='100%'; setTimeout(()=>{ setStatus('Spremno'); next(); }, 300); });
+    }, 420);
+    el('#skip').onclick=()=>{ clearInterval(timer); bar.style.width='100%'; setTimeout(()=>{ setStatus('Spremno'); next(); }, 300); };
     return;
   }
 
-  if(q.tip==='final'){
+  if(q.tip === 'final'){
     app.innerHTML = `
       <div class="center">
-        <h2>🏆 Bravo! Stigla si do kraja kviza!</h2>
+        <h2>🏆 Bravo! Stigla si do kraja!</h2>
         <p class="sub">Grebalica ⤵</p>
         <div class="scratch-wrap">
           <div class="prize"><h3>Ručak u Monument restoranu! Bravos!</h3></div>
           <canvas id="scratch" width="800" height="400"></canvas>
         </div>
-        <div id="hover-msg" class="sub" style="display:none">Ručak u Monument restoranu! Bravos!</div>
+        <div id="reveal-msg" class="sub reveal">Ručak u Monument restoranu! Bravos!</div>
         <div class="row" style="justify-content:center">
-          <button class="btn" id="again">Igraj ponovo</button>
+          <button class="btn" onclick="location.reload()">Igraj ponovo</button>
         </div>
       </div>`;
     fireConfetti();
     setupScratch();
-    el('#again').addEventListener('click', ()=>location.reload());
     return;
   }
 }
 
+// ===============
+// POMOĆNE FUNKCIJE
+// ===============
 function wizardSVG(){
   return `
   <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+    <defs>
+      <linearGradient id="g1" x1="0" x2="1">
+        <stop offset="0" stop-color="#22d3ee"/>
+        <stop offset="1" stop-color="#38bdf8"/>
+      </linearGradient>
+    </defs>
     <path d="M40 70 Q100 30 160 70 L150 80 Q100 60 50 80 Z" fill="url(#g1)"/>
     <ellipse cx="100" cy="80" rx="70" ry="14" fill="#0b1220" stroke="#1f2937"/>
     <circle cx="100" cy="95" r="22" fill="#f3f4f6" stroke="#e5e7eb"/>
-    <circle cx="92" cy="95" r="3" fill="#111827"/><circle cx="108" cy="95" r="3" fill="#111827"/>
+    <circle cx="92" cy="95" r="3" fill="#111827"/>
+    <circle cx="108" cy="95" r="3" fill="#111827"/>
     <path d="M92 106 Q100 112 108 106" stroke="#111827" fill="none" stroke-linecap="round"/>
     <rect class="wand" x="120" y="58" width="40" height="5" rx="2" fill="#111827"/>
-    <circle class="spark" cx="166" cy="60" r="3" fill="#fbbf24"/><circle class="spark" cx="172" cy="56" r="2" fill="#f43f5e"/><circle class="spark" cx="172" cy="64" r="2" fill="#22c55e"/>
-  </svg>`;
+    <circle class="spark" cx="166" cy="60" r="3" fill="#fbbf24"/>
+    <circle class="spark" cx="172" cy="56" r="2" fill="#f43f5e"/>
+    <circle class="spark" cx="172" cy="64" r="2" fill="#22c55e"/>
+  </svg>`
 }
 
 function fireConfetti(){
-  const end = Date.now() + 1800;
+  const duration = 1800; const end = Date.now() + duration;
   (function frame(){
     confetti({particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }});
     confetti({particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }});
@@ -263,14 +287,24 @@ function setupScratch(){
   const dpr = window.devicePixelRatio || 1; c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; ctx.scale(dpr,dpr);
   ctx.fillStyle = 'rgba(107,114,128,0.95)'; ctx.fillRect(0,0,c.clientWidth,c.clientHeight);
   ctx.globalCompositeOperation = 'destination-out';
-  let scratching=false; const rad=18;
-  const scratch=(x,y)=>{ ctx.beginPath(); ctx.arc(x,y,rad,0,Math.PI*2); ctx.fill(); };
-  const pctCleared = ()=>{ const img=ctx.getImageData(0,0,c.clientWidth,c.clientHeight).data; let cleared=0; for(let i=3;i<img.length;i+=4){ if(img[i]===0) cleared++; } return cleared/(img.length/4); };
-  const onMove=e=>{
-    const r=c.getBoundingClientRect();
-    const x=(e.touches? e.touches[0].clientX: e.clientX)-r.left;
-    const y=(e.touches? e.touches[0].clientY: e.clientY)-r.top;
-    if(scratching){ scratch(x,y); if(pctCleared()>0.6){ ctx.clearRect(0,0,c.clientWidth,c.clientHeight); }}
+  let scratching = false;
+  let revealed = false;               // <— NOVO: da se poruka ne pali više puta
+  const rad = 18;
+  const scratch = (x,y)=>{ ctx.beginPath(); ctx.arc(x,y,rad,0,Math.PI*2); ctx.fill(); };
+  const pctCleared = ()=>{ const img = ctx.getImageData(0,0,c.clientWidth,c.clientHeight).data; let cleared=0; for(let i=3;i<img.length;i+=4){ if(img[i]===0) cleared++; } return cleared/(img.length/4); };
+  const onMove = e=>{
+    const rect = c.getBoundingClientRect();
+    const x = (e.touches? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches? e.touches[0].clientY : e.clientY) - rect.top;
+    if(scratching){
+      scratch(x,y);
+      if(!revealed && pctCleared()>0.6){    // <— KAD OGREBEMO 60%
+        revealed = true;
+        ctx.clearRect(0,0,c.clientWidth,c.clientHeight);   // skini prekrivku
+        const msg = el('#reveal-msg');
+        if(msg){ msg.classList.add('show'); }              // pokaži poruku ispod
+      }
+    }
   };
   c.addEventListener('mousedown', ()=>scratching=true);
   c.addEventListener('mouseup', ()=>scratching=false);
@@ -279,15 +313,9 @@ function setupScratch(){
   c.addEventListener('touchstart', e=>{ scratching=true; onMove(e); }, {passive:true});
   c.addEventListener('touchend', ()=>scratching=false);
   c.addEventListener('touchmove', onMove, {passive:true});
-  const hover = el('#hover-msg');
-  if(hover){
-    c.addEventListener('mouseenter', ()=> hover.style.display='block');
-    c.addEventListener('mouseleave', ()=> hover.style.display='none');
-    c.addEventListener('touchstart', ()=> hover.style.display='block', {passive:true});
-    c.addEventListener('touchend', ()=> hover.style.display='none');
-  }
 }
 
+// pokreni
 render();
 </script>
 </body>

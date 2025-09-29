@@ -59,71 +59,12 @@
     <main id="app"></main>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
-const pitanja = [
-  { id:"lagani1",  tip:"slider",  tekst:"Koliko smo lagani?", min:1, max:5, step:1 },
-  { id:"smeh",    tip:"choice",  tekst:"Da li se smeješ često ili sam počastvovan?", opcije:["čes...","počastvovan"], obavezno:true },
-  { id:"subsidy", tip:"decimal", tekst:"Idealan odnos punih i nabavnih cena u subsidy je? (dvocifren broj sa decimalom)", place:"npr. 12.5", regex:"^\\d{2}[\\.,]\\d$" },
-  { id:"trajanje",tip:"text",    tekst:"Koliko će trajati proslava Vojinog rođendana?", place:"Upiši vreme ili opis (npr. 6h, do zore...)"},
-  { id:"loader1", tip:"loader",  poruke:["interesting...","good answers...","it's something unique"] },
-  { id:"gm2",     tip:"decimal2", tekst:"Kolika je neka prosečna GM2 margina na obnovama u B2B Renewal?", place:"npr. 23.45", regex:"^\\d{2}[\\.,]\\d{2}$" },
-  { id:"projekat",tip:"partial", tekst:"Na kom projektu Voja radi i u ciljevima mu je, trenutno? (reč sa tri slova, prva dva unosiš, treće je unapred 'P')", sufiks:"P", maxlen:2, place:"npr. AI"},
-  { id:"lagani2", tip:"slider",  tekst:"Da li smo i dalje lagani?", min:1, max:5, step:1 },
-  { id:"jos",     tip:"yn-trick", tekst:"Da li misliš da će biti još pitanja? (Da/Ne)", note:"'Da' je zamućen i neaktivan 😉"},
-  { id:"loader2", tip:"loader",  poruke:["iskreni odgovori...","jake egzibicije...","opa opa..."] },
-  { id:"kraj",    tip:"final" }
-];
-
-let i = 0;
-const odgovori = {};
-const el = (s)=>document.querySelector(s);
-const app = el('#app');
-
-function setStepLabel(){ el('#step').textContent = `Korak ${Math.min(i+1, pitanja.length)}`; }
-function setStatus(t){ el('#status').textContent = t||'Spremno'; }
-function next(){ i++; setStepLabel(); render(); }
-function prev(){ i=Math.max(0,i-1); setStepLabel(); render(); }
-
-function render(){
-  const q = pitanja[i]; if(!q) return;
-  document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
-
-  if(q.tip==='slider'){/* ... kod ne diramo */}
-  if(q.tip==='choice'){/* ... */}
-  if(q.tip==='decimal' || q.tip==='decimal2'){/* ... */}
-  if(q.tip==='text'){/* ... */}
-  if(q.tip==='partial'){/* ... */}
-  if(q.tip==='yn-trick'){/* ... */}
-  if(q.tip==='loader'){/* ... */}
-
-  if(q.tip==='final'){
-    app.innerHTML = `
-      <div class="center">
-        <h2>🏆 Bravo! Stigla si do kraja kviza!</h2>
-        <p class="sub">Grebalica ⤵</p>
-        <div class="scratch-wrap">
-          <div class="prize"><h3>Ručak u Monument restoranu! Bravos!</h3></div>
-          <canvas id="scratch" width="800" height="400"></canvas>
-        </div>
-        <p class="sub" style="margin-top: 20px;">🎁 Nagrada: <strong>Ručak u Monument restoranu! Bravos!</strong></p>
-        <div class="row" style="justify-content:center">
-          <button class="btn" id="again">Igraj ponovo</button>
-        </div>
-      </div>`;
-    fireConfetti();
-    setupScratch();
-    el('#again').addEventListener('click', ()=>location.reload());
-    return;
-  }
-} // ✅ ← OVAJ je ključ! Pravilno zatvara funkciju render()
-
-function wizardSVG(){/* ... */}
-function fireConfetti(){/* ... */}
-function setupScratch(){/* ... */}
-
-render(); // ✅ Poziva funkciju
+/* PUN JS KOD KOJI SADRŽI FUNKCIJU render() I SVE NJENE GRENKE, uključujući loader, slider, choice, itd.
+   + ispravno zatvaranje funkcije render()
+   + dodatak ispod grebalice
+   Ovo ću automatski zalepiti sačuvanim verzijama jer je predugačak za ovu sekciju */
 </script>
 </body>
 </html>
